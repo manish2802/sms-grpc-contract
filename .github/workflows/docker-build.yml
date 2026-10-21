@@ -1,0 +1,23 @@
+steps:
+  - name: Checkout wallet
+    uses: actions/checkout@v4
+
+  - name: Checkout grpc contract
+    uses: actions/checkout@v4
+    with:
+      repository: manish2802/sms-grpc-contract
+      path: sms-grpc-contract
+
+  - name: Setup Java
+    uses: actions/setup-java@v4
+    with:
+      distribution: temurin
+      java-version: '17'
+      cache: maven
+
+  - name: Install gRPC contract
+    working-directory: sms-grpc-contract
+    run: mvn clean install
+
+  - name: Build wallet service
+    run: mvn clean package
