@@ -1,23 +1,42 @@
-steps:
-  - name: Checkout wallet
-    uses: actions/checkout@v4
+name: Build Wallet Service
 
-  - name: Checkout grpc contract
-    uses: actions/checkout@v4
-    with:
-      repository: manish2802/sms-grpc-contract
-      path: sms-grpc-contract
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
-  - name: Setup Java
-    uses: actions/setup-java@v4
-    with:
-      distribution: temurin
-      java-version: '17'
-      cache: maven
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-  - name: Install gRPC contract
-    working-directory: sms-grpc-contract
-    run: mvn clean install
+    steps:
+      # 1. Checkout wallet-service repository
+      - name: Checkout wallet service
+        uses: actions/checkout@v4
 
-  - name: Build wallet service
-    run: mvn clean package
+      # 2. Checkout shared gRPC contract repository
+      - name: Checkout grpc contract
+        uses: actions/checkout@v4
+        with:
+          repository: manish2802/sms-grpc-contract
+          path: sms-grpc-contract
+
+      # 3. Setup Java 17
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      # 4. Build and install contract into GitHub runner's local Maven repo
+      - name: Install gRPC contract
+        working-directory: sms-grpc-contract
+        run: mvn clean install -DskipTests
+
+      # 5. Build wallet service
+      - name: Build wallet service
+        run: mvn clean package -DskipTests
